@@ -1,0 +1,22 @@
+name: Deploy to Coolify
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.COOLIFY_HOST }}
+          username: ${{ secrets.COOLIFY_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/ai-platform
+            git pull
+            npm install
+            pm2 restart ai-platform
